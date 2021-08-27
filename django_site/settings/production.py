@@ -28,5 +28,5 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 
-#STATIC_URL = 'https://nombreurlproyecto.com/static/'
-#MEDIA_URL = 'https://nombreurlproyecto.com/media/'
+STATIC_URL = 'https://mydjsite.herokuapp.com/static/'
+MEDIA_URL = 'https://mydjsite.herokuapp.com/media/'
