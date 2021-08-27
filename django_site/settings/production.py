@@ -24,6 +24,9 @@ db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
 django_heroku.settings(locals())
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
 
 #STATIC_URL = 'https://nombreurlproyecto.com/static/'
 #MEDIA_URL = 'https://nombreurlproyecto.com/media/'
