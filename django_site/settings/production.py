@@ -1,5 +1,5 @@
 # production.py
-from base import *
+from .base import *
 
 import dj_database_url
 import django_heroku
