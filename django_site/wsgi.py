@@ -14,5 +14,5 @@ from whitenoise import WhiteNoise
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_site.settings.production')
 application = get_wsgi_application()
-application = WhiteNoise(application, root=django_site.settings.base.STATIC_ROOT)
+application = WhiteNoise(application)
 
