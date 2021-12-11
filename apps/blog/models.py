@@ -5,7 +5,13 @@ from django.urls import reverse
 # Create your models here.
 
 class Category(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=100,unique=True)
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
 
 class Post(models.Model):
     author = models.ForeignKey('auth.User', on_delete=models.CASCADE)
@@ -48,5 +54,5 @@ class Comment(models.Model):
         return reverse("post_list")
 
     def __str__(self):
-        return self.text
+        return self.comment_body
     

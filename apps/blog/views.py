@@ -1,19 +1,14 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.http.response import Http404
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from .models import Post, Comment
 from .forms import PostForm, CommentForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import( TemplateView, ListView,
-                                  DetailView, CreateView,
-                                  UpdateView, DeleteView)
+from django.views.generic import( CreateView)
 
 
 # Create your views here.
-def index(request):
-    texto={'mensaje_texto':'Este es mi primer mensaje :)'}
-    return render(request, 'index.html', {})
-
 def blog_index(request):
     post_list = Post.objects.all().order_by('-created_on')
     context = {
@@ -23,7 +18,11 @@ def blog_index(request):
 
 
 def blog_detail(request, id):
-    post = Post.objects.get(id=id)
+    try:
+        data =Post.objects.get(id =id)
+        comments = Comment.objects.filter(approved_comment=True)
+    except Post.DoesNotExist:
+        raise Http404('Post does not exist')
 
     form=CommentForm()
     if request.method=='POST':
@@ -35,18 +34,18 @@ def blog_detail(request, id):
             comment = Comment(
                 author=form.cleaned_data["author"],
                 comment_body=form.cleaned_data["comment_body"],
-                post=post
+                post=data
             )
             comment.save()
 
-    comments = Comment.objects.filter(post=post)
+    comments = Comment.objects.filter(approved_comment=True)
     context = {
-        "post": post,
+        "post": data,
         "comments": comments,
         "form": form,
     }
 
-    return render(request, 'blog_detail.html', context)
+    return render(request, 'post_detail.html', context)
 
 
 class CreatePostView(CreateView, LoginRequiredMixin):
@@ -56,12 +55,6 @@ class CreatePostView(CreateView, LoginRequiredMixin):
     form_class = PostForm
 
     model = Post
-
-
-
-
-
-
 
 
 def blog_category(request, category):
@@ -78,45 +71,34 @@ def blog_category(request, category):
 
 
 @login_required
-def post_publish(request, pk):
-    post = get_object_or_404(Post, pk=pk)
+def post_publish(request, id):
+    try:
+        post =Post.objects.get(id =id)
+    except Post.DoesNotExist:
+        raise Http404('Data does not exist')
     post.publish()
-    return redirect('post_detail', pk=pk)
+    return redirect('post_detail', id=id)
 
 
 @login_required
-def add_comment_to_post(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.post = post
-            comment.save()
-            return redirect('post_detail', pk=post.pk)
-    else:
-        form = CommentForm()
-    return render(request, 'blog/comment_form.html', {'form': form})
-
-
-@login_required
-def comment_approve(request, pk):
-    comment = get_object_or_404(Comment, pk=pk)
+def comment_approve(request, id):
+    try:
+        comment =Comment.objects.get(id =id)
+    except Comment.DoesNotExist:
+        raise Http404('Comentario no existe')
     comment.approve()
-    return redirect('post_detail', pk=comment.post.pk)
+    return redirect('post_detail', id=comment.post.id)
 
 
 @login_required
-def comment_remove(request, pk):
-    comment = get_object_or_404(Comment, pk=pk)
-    post_pk = comment.post.pk
+def comment_remove(request, id):
+    try:
+        comment =Comment.objects.get(id =id)
+    except Comment.DoesNotExist:
+        raise Http404('Comentario no existe')
+    post_id = comment.post.id
     comment.delete()
-    return redirect('post_detail', pk=post_pk)
-
-
-
-
-
+    return redirect('post_detail', id=post_id)
 
 
 def contact(request):
